@@ -1,0 +1,40 @@
+{
+  "detector_training": {
+    "epochs": 1,
+    "batches": 1,
+    "images": 3,
+    "includes_empty_target_image": true,
+    "finite_loss": 9.076448440551758
+  },
+  "scorer_training": {
+    "epochs": 1,
+    "seed": 3,
+    "images": 20,
+    "clusters": 1851,
+    "positive_clusters": 320,
+    "cache_sha256": "824368c4fbb5310fe3ef10a8b8ad6e3bbe31a5c798c877fd45b783da26ae4b8f"
+  },
+  "ablation_smoke_configurations": [
+    "M1+M2+M3",
+    "baseline",
+    "M1",
+    "M2",
+    "M1+M2",
+    "M3",
+    "M1+M3",
+    "M2+M3"
+  ],
+  "prepare_data_smoke": {
+    "train": {
+      "images": 1,
+      "target_images": 1
+    },
+    "val": {
+      "images": 1,
+      "target_images": 1
+    }
+  },
+  "predict_smoke": true,
+  "trained_checkpoint_reload": true,
+  "ultralytics_record_modified_python_files": []
+}

@@ -1,0 +1,55 @@
+{
+  "zero_initialization_exact_identity": true,
+  "scorer_parameters": 4385,
+  "original_function_parity_images": 50,
+  "historical_cache_evaluation": {
+    "mAP50": 0.2661,
+    "mAP50-95": 0.1726,
+    "per_class": {
+      "car": 0.2683,
+      "person": 0.2406,
+      "bus": 0.0087
+    },
+    "dets": 38491,
+    "images": 2145
+  },
+  "historical_metrics_match": true,
+  "fresh_first_three_vs_historical_cache": [
+    {
+      "file": "00044_MVR",
+      "historical_shape": [
+        20,
+        6
+      ],
+      "fresh_shape": [
+        20,
+        6
+      ],
+      "max_abs_difference": 5.960464477539063e-08
+    },
+    {
+      "file": "00045_MVR",
+      "historical_shape": [
+        21,
+        6
+      ],
+      "fresh_shape": [
+        21,
+        6
+      ],
+      "max_abs_difference": 1.4901161193847656e-08
+    },
+    {
+      "file": "00046_MVR",
+      "historical_shape": [
+        22,
+        6
+      ],
+      "fresh_shape": [
+        22,
+        6
+      ],
+      "max_abs_difference": 5.960464477539063e-08
+    }
+  ]
+}

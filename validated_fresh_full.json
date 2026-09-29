@@ -1,0 +1,16 @@
+{
+  "scope": "full validation",
+  "results": {
+    "M1+M2+M3": {
+      "mAP50": 0.2661,
+      "mAP50-95": 0.1726,
+      "per_class": {
+        "car": 0.2683,
+        "person": 0.2406,
+        "bus": 0.0087
+      },
+      "dets": 38491,
+      "images": 2145
+    }
+  }
+}
