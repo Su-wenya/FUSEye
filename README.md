@@ -142,8 +142,9 @@ mv yolo26x.pt weights/yolo26x.pt
 Compare its SHA-256 with [weights/SHA256.json](weights/SHA256.json). An upstream
 download can change, so exact historical reproduction requires the recorded
 file hash. Do not replace the 80-class head with a new three-class head.
-See [checkpoint notes](weights/README.md). A public weights URL must be added
-after the release archive is actually uploaded.
+See [checkpoint notes](weights/README.md). Download the verified
+[FUSEye-weights.zip](https://github.com/Su-wenya/FUSEye/releases/download/v0.1.0/FUSEye-weights.zip)
+from the [v0.1.0 release](https://github.com/Su-wenya/FUSEye/releases/tag/v0.1.0).
 
 ```bash
 python -m fuseye.verify --weights weights
