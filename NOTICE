@@ -1,0 +1,13 @@
+FUSEye research implementation.
+
+This release is assembled from the authors' final YOLO26-x experiment code.
+The source is provided under the GNU Affero General Public License version 3.
+See LICENSE for the full terms.
+
+Ultralytics YOLO is an external dependency, distributed by Ultralytics under
+its applicable AGPL-3.0 or commercial license. Preserve its notices when
+redistributing code or derived model artifacts. See https://www.ultralytics.com/license.
+
+WoodScape images and annotations are not included. Obtain the dataset from
+its provider and comply with its separate terms. This repository's license
+does not grant rights to the dataset or to the paper's publisher-owned content.
