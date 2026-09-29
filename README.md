@@ -4,7 +4,7 @@ Official implementation of **FUSEye**.
 
 FUSEye adapts COCO-pretrained YOLO detectors to fisheye imagery without full-model fine-tuning. It combines **GridViews**, **Z-Adapters**, and **AgreeFusion** to address boundary compression, distortion-induced feature mismatch, and conflicting multi-view detections without camera calibration or dewarping.
 
-!\[FUSEye overview](assets/teaser.png)
+![FUSEye overview](assets/teaser.png)
 
 ## Method
 
