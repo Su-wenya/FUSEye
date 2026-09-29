@@ -1,10 +1,43 @@
-# FUSEye
+# FUSEye: Training-Light Fisheye Detection with Overlapping Views and Zero-Initialized Adapters
 
-Code for **FUSEye: Training-Light Fisheye Detection with Overlapping Views and
-Zero-Initialized Adapters**. Submitted to ICRA 2027.
+Official implementation of **FUSEye**. Submitted to ICRA 2027.
 
-FUSEye adapts a COCO-pretrained YOLO26-x detector to WoodScape fisheye images.
-It combines three components:
+[Overview](#overview) · [Method](#method) · [Results](#results) ·
+[Installation](#installation) · [Checkpoints](#checkpoints) · [Data](#data) ·
+[Evaluation](#evaluate-the-released-model) · [Training](#train-from-the-coco-checkpoint)
+
+## Overview
+
+Fisheye distortion and boundary compression make COCO-pretrained detectors
+less effective on wide-angle images. FUSEye adapts YOLO26-x to this setting
+with overlapping image views, zero-initialized residual adapters, and learned
+agreement-based detection fusion. It requires no camera calibration or dewarping.
+
+![FUSEye overview: overlapping views provide complementary detections; charts summarize adaptation performance, label efficiency, and results across detectors.](assets/teaser.png)
+
+*Motivation and paper-reported results of FUSEye. GridViews exposes the same
+boundary object in overlapping views, and AgreeFusion combines the resulting
+detection evidence. The charts summarize full-data adaptation, limited-label
+training, and experiments across YOLO detectors. The illustration is taken from
+the manuscript; the accompanying code release targets YOLO26-x.*
+
+### Release status
+
+| Item | Status |
+|---|---|
+| YOLO26-x source implementation | Included in this repository |
+| Trained checkpoints | Packaged separately as `FUSEye-weights.zip`; see [Checkpoints](#checkpoints) |
+| Full MVR inference verification | 2,145 images, matching the reported final metrics; see [validation](docs/VALIDATION.md) |
+| Training entry points | Detector and scorer training passed small-scale execution checks |
+| Complete retraining verification | The eight-epoch training experiment was not rerun during release preparation |
+| Dataset | External; images and labels are not distributed here |
+
+## Method
+
+FUSEye processes the full image and four corner crops with the same adapted
+detector, remaps their predictions to the original image coordinates, and
+combines consistent detections. The implementation names M1/M2/M3 map to the
+paper components as follows:
 
 | Experiment name | Paper name | Function |
 |---|---|---|
@@ -21,6 +54,49 @@ This repository contains the final **YOLO26-x** implementation. It does not
 claim to include all detector families or baselines discussed in the paper.
 See [reproduction notes](docs/REPRODUCIBILITY.md) for implementation details,
 the original training population, BatchNorm behavior, and baseline differences.
+
+GridViews uses 857x647 crops for a 1280x966 image and resizes each view to
+640x640. Z-Adapters start as exact identity mappings. AgreeFusion groups
+same-class candidates at IoU 0.5, preserves a confidence threshold of 0.25 for
+single-view clusters, and uses a learned scorer for clusters supported by at
+least two distinct views. Confidence-weighted box fusion is followed by
+class-wise NMS. Details of the scoring and dispersion rules are documented
+in [REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md).
+
+## Results
+
+### Main comparison on WoodScape MVR
+
+The following table contains **paper-reported results** for YOLO26-x. Values
+are percentages. During release preparation, fresh inference reproduced the
+FUSEye row; the other two rows are manuscript reference results and were not
+rerun as part of that verification.
+
+| Method | AP50 | AP50:95 | Car AP50:95 | Person AP50:95 | Bus AP50:95 |
+|---|---:|---:|---:|---:|---:|
+| Direct transfer | 14.80 | 10.96 | 15.74 | 15.67 | 1.49 |
+| **FUSEye** | **26.61** | **17.26** | **26.83** | **24.06** | **0.87** |
+| Full fine-tuning | 31.56 | 22.82 | 42.48 | 22.44 | 3.54 |
+
+FUSEye retains 84.3% of the full-fine-tuning AP50 in this comparison. The gains
+are not uniform across categories: bus AP50:95 remains low and is below the
+direct-transfer result.
+
+### Limited-label performance
+
+| Labeled training setting | AP50 | AP50:95 |
+|---|---:|---:|
+| 25%, three subsets of 1,520 images | 25.97 ± 0.34 | 16.84 ± 0.25 |
+| Full-data experiment | 26.61 | 17.26 |
+
+The 25% values are the mean and sample standard deviation over three subsets,
+retaining 97.6% of full-data AP50 on average. The original subset manifests
+and result records are included. These subset training runs were not repeated
+during release preparation. See [Limited-label experiments](#limited-label-experiments)
+for the commands and [reproduction notes](docs/REPRODUCIBILITY.md) for the
+distinction between 6,089 total training images and 6,082 target-containing images.
+
+The component ablation table appears in [Evaluation](#evaluate-the-released-model).
 
 ## Installation
 
@@ -142,16 +218,6 @@ class columns report AP50:95. Machine-readable records are in
 The 14.62 baseline is the matching ablation baseline. It is not the paper's
 separately evaluated 14.80 direct-transfer result.
 
-## Predict one image
-
-```bash
-python -m fuseye.cli predict --image /path/to/1280x966_image.jpg --base weights/yolo26x.pt --weights weights --out runs/demo
-```
-
-Outputs are normalized-box `predictions.json` and a visualization
-`prediction.jpg`. The default drawing threshold is 0.25; it affects the picture
-only. Raw predictions retain the original fusion policy.
-
 ## Train from the COCO checkpoint
 
 ### 1. Train Z-Adapters and the detection head
@@ -210,6 +276,40 @@ the new weights directory and **its generated `train_manifest.json`**. This
 ensures the detector and scorer use the same labeled subset. Detector seeds
 are 0, 1 and 2 respectively; the scorer seed remains 3. The historical subset
 results are provided in `results/reported_fraction25_seed*.json`.
+
+## Repository structure
+
+```text
+assets/             Manuscript teaser image
+fuseye/             Adapters, view inference, fusion, training, and evaluation
+docs/               Reproduction notes, environment, provenance, and validation
+results/            Historical result records and release-validation evidence
+splits/             Full-data and limited-label image manifests
+weights/            Checkpoint instructions and SHA-256 values
+requirements.txt    Recorded dependency versions
+```
+
+The checkpoint binaries are distributed separately from the source archive.
+For command-line options:
+
+```bash
+python -m fuseye.prepare_data --help
+python -m fuseye.train_detector --help
+python -m fuseye.cli --help
+python -m fuseye.verify --help
+```
+
+## Acknowledgments
+
+This implementation builds on Ultralytics YOLO and PyTorch, uses pycocotools
+for evaluation, and evaluates on WoodScape. These projects and assets retain
+their respective licenses and terms. See [NOTICE](NOTICE).
+
+## Contact
+
+For questions about the implementation or reproduction, please open an issue
+in this repository. Include the command, environment versions, checkpoint
+hashes, and relevant error output so the result can be investigated.
 
 ## License
 
